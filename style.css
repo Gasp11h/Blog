@@ -1,0 +1,51 @@
+body{ 
+	color:black; /* color permet de changer la couleur de notre texte. On pourra utiliser le nom anglais d'une couleur, son code hexadecimal #, ou encore le code RGB.*/ 
+	background-color:#5D33FF;/*background-color permet de changer la couleur de fond de nos éléments.*/
+	font-family:cursive;/*font-family permet de changer la police de notre site, c'est a dire le style d'écriture. On peut choisir plusieurs valeurs entre serif, sans-serif, cursive et monospace.*/ 
+	font-size:17px;/*font-size permet de modifier la taille des lettres.*/
+	line-height:20px;/*line-heigt permet de modifier l'espace qu'il y a entre deux lignes de texte*/
+	/*Grace a text-align, il est possible de changer la position du texte en le mettant au centre avec la valeur center, a gauche avec left, ou a droite avec right.*/ 
+}
+	
+h1{
+	color:yellow;
+	font-family:sans-serif;
+	font-variant:small-caps;/*font-variant, avec pour valeur small-caps, permet de transformer toutes les lettres en petite majuscules.*/
+	letter-spacing:1px; /*Pour pourvoir augmenter l'espace entre les lettres, on utilise la propriété letter-spacing.*/
+
+
+}
+
+h2{
+	color:yellow;
+	font-weight:lighter;/*Grace a font-weight, il est possible de modifier l'épaisseur des lettres, lighter pour les affiner, et bolder pour les épaissir.*/
+
+}
+
+a{
+	color:red;
+	font-variant:small-caps;
+	text-decoration:none;/*le code text-decoration avec pour valeur none permet de supprimer la barre de soulignement présente en dessous du format par défaut des liens.*/
+
+}
+
+a:hover{ /*Grace a cet séléction, il est possible de modifier la couleur de notre lien lorsquue l'on passe notre souris dessus.*/
+	color:yellow;
+
+}
+
+div{
+	border:solid yellow;
+	margin:17px 250px; /*margin correspond a la marge extérieure.*/
+	padding:17px; /*padding correspond a la marge intérieure*/
+	border-radius:17px; /*border-radius permet d'arrondir les angles de nos bords*/
+	box-shadow:10px 10px 10px yellow; /*box-shadow permet d'ajouter une ombre a nos éléments.*/
+}
+
+iframe{
+	border-radius:10px
+}
+
+img{
+	border-radius:10px
+}
