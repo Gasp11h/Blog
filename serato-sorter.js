@@ -250,6 +250,10 @@ const newCrateForm = document.getElementById("new-crate-form");
 const newCrateNameInput = document.getElementById("new-crate-name");
 const addToCrateBtn = document.getElementById("add-to-crate-btn");
 const activeCrateSelect = document.getElementById("active-crate-select");
+const recoSelect = document.getElementById("reco-select");
+const recoResults = document.getElementById("reco-results");
+
+recoSelect.addEventListener("change", renderRecommendations);
 
 ["dragenter", "dragover"].forEach(evt => {
 	dropZone.addEventListener(evt, e => {
@@ -294,6 +298,7 @@ async function handleFiles(fileList) {
 	fileInput.value = "";
 	computeDuplicates();
 	refreshGenreFilterOptions();
+	refreshRecoSelect();
 	renderTable();
 }
 
@@ -312,6 +317,135 @@ function computeDuplicates() {
 			for (const t of group) t.dupKey = key;
 		}
 	}
+}
+
+/* ---------- Recommandations pour enchaîner (roue de Camelot + BPM) ---------- */
+
+const CAMELOT_FROM_MAJOR = { C: "8B", "C#": "3B", D: "10B", "D#": "5B", E: "12B", F: "7B", "F#": "2B", G: "9B", "G#": "4B", A: "11B", "A#": "6B", B: "1B" };
+const CAMELOT_FROM_MINOR = { A: "5A", "A#": "12A", B: "7A", C: "2A", "C#": "9A", D: "4A", "D#": "11A", E: "6A", F: "1A", "F#": "8A", G: "3A", "G#": "10A" };
+const FLAT_TO_SHARP = { Db: "C#", Eb: "D#", Gb: "F#", Ab: "G#", Bb: "A#", Cb: "B", Fb: "E" };
+
+function parseKeyToCamelot(raw) {
+	if (!raw) return null;
+	const s = raw.trim();
+
+	// Déjà au format Camelot, ex. "8A", "12B"
+	let m = s.match(/^(\d{1,2})\s*([AB])$/i);
+	if (m) {
+		const num = parseInt(m[1], 10);
+		if (num >= 1 && num <= 12) return `${num}${m[2].toUpperCase()}`;
+		return null;
+	}
+
+	// Notation musicale standard, ex. "F#m", "Bb", "A minor", "C# maj"
+	m = s.match(/^([A-Ga-g])([#b♯♭]?)\s*(maj|major|min|minor|m)?\.?$/i);
+	if (!m) return null;
+	let note = m[1].toUpperCase() + (m[2] === "b" || m[2] === "♭" ? "b" : (m[2] === "#" || m[2] === "♯" ? "#" : ""));
+	note = FLAT_TO_SHARP[note] || note;
+	const isMinor = /^(min|minor|m)$/i.test(m[3] || "");
+	const table = isMinor ? CAMELOT_FROM_MINOR : CAMELOT_FROM_MAJOR;
+	return table[note] || null;
+}
+
+function keyCompatibility(keyA, keyB) {
+	const a = parseKeyToCamelot(keyA);
+	const b = parseKeyToCamelot(keyB);
+	if (!a || !b) return null;
+	const na = parseInt(a, 10), la = a.slice(-1);
+	const nb = parseInt(b, 10), lb = b.slice(-1);
+	const wrapDiff = Math.min(Math.abs(na - nb), 12 - Math.abs(na - nb));
+
+	if (na === nb && la === lb) return { score: 3, label: `Même clé (${a})` };
+	if (la === lb && wrapDiff === 1) return { score: 2, label: `Clé voisine (${a} → ${b})` };
+	if (na === nb && la !== lb) return { score: 2, label: `Relative maj/min (${a} → ${b})` };
+	if (la === lb && wrapDiff === 2) return { score: 1, label: `Boost d'énergie (${a} → ${b})` };
+	return { score: 0, label: `Clé différente (${b})` };
+}
+
+function bpmCompatibility(bpmA, bpmB) {
+	const a = parseFloat(bpmA), b = parseFloat(bpmB);
+	if (!a || !b) return null;
+	const diffPct = Math.abs(a - b) / a * 100;
+	if (diffPct <= 2) return { score: 3, label: `BPM quasi identique (${b})` };
+	if (diffPct <= 6) return { score: 2, label: `BPM proche (${b})` };
+	const halfDiff = Math.abs(a - b * 2) / a * 100;
+	const doubleDiff = Math.abs(a - b / 2) / a * 100;
+	if (halfDiff <= 4 || doubleDiff <= 4) return { score: 1, label: `BPM double/moitié (${b})` };
+	if (diffPct <= 10) return { score: 1, label: `BPM proche (${b})` };
+	return { score: 0, label: `BPM différent (${b})` };
+}
+
+function refreshRecoSelect() {
+	const current = recoSelect.value;
+	recoSelect.innerHTML = '<option value="">— choisir un morceau —</option>' +
+		tracks.map(t => `<option value="${t.id}">${escapeHtml(t.title)} — ${escapeHtml(t.artist || "Artiste inconnu")}</option>`).join("");
+	recoSelect.value = tracks.some(t => String(t.id) === current) ? current : "";
+	renderRecommendations();
+}
+
+function renderRecommendations() {
+	const id = parseInt(recoSelect.value, 10);
+	const current = tracks.find(t => t.id === id);
+	if (!current) {
+		recoResults.innerHTML = `<p class="muted">Choisissez un morceau pour voir les meilleures suggestions pour enchaîner.</p>`;
+		return;
+	}
+
+	const candidates = tracks
+		.filter(t => t.id !== current.id)
+		.map(t => {
+			const keyMatch = keyCompatibility(current.key, t.key);
+			const bpmMatch = bpmCompatibility(current.bpm, t.bpm);
+			const score = (keyMatch ? keyMatch.score : 0) + (bpmMatch ? bpmMatch.score : 0);
+			return { track: t, keyMatch, bpmMatch, score };
+		})
+		.filter(c => c.score > 0)
+		.sort((a, b) => b.score - a.score)
+		.slice(0, 8);
+
+	const missing = [];
+	if (!current.bpm) missing.push("BPM");
+	if (!parseKeyToCamelot(current.key)) missing.push("clé reconnue");
+	const noteHtml = missing.length
+		? `<p class="muted reco-note">Ce morceau n'a pas de ${missing.join(" ni de ")} : les suggestions se basent sur ce qui est disponible.</p>`
+		: "";
+
+	if (candidates.length === 0) {
+		recoResults.innerHTML = noteHtml + `<p class="muted">Aucune suggestion compatible trouvée dans votre bibliothèque actuelle pour « ${escapeHtml(current.title)} ».</p>`;
+		return;
+	}
+
+	recoResults.innerHTML = noteHtml + `
+		<ul class="reco-list">
+			${candidates.map(c => `
+				<li class="reco-item">
+					<div class="reco-info">
+						<div class="reco-title">${escapeHtml(c.track.title)} <span class="muted">— ${escapeHtml(c.track.artist || "Artiste inconnu")}</span></div>
+						<div class="reco-badges">
+							${c.keyMatch ? `<span class="reco-badge score-${c.keyMatch.score}">${escapeHtml(c.keyMatch.label)}</span>` : ""}
+							${c.bpmMatch ? `<span class="reco-badge score-${c.bpmMatch.score}">${escapeHtml(c.bpmMatch.label)}</span>` : ""}
+						</div>
+					</div>
+					<button class="reco-add-btn" data-id="${c.track.id}" title="Ajouter au crate actif">+ Crate</button>
+				</li>
+			`).join("")}
+		</ul>
+	`;
+
+	document.querySelectorAll(".reco-add-btn").forEach(btn => {
+		btn.addEventListener("click", () => {
+			if (!activeCrate) {
+				alert("Choisissez d'abord un crate (ou créez-en un) dans le panneau de droite.");
+				return;
+			}
+			const t = tracks.find(x => x.id === parseInt(btn.dataset.id, 10));
+			if (!t) return;
+			crates[activeCrate].push(trackDescriptor(t));
+			saveCratesToStorage();
+			renderCratesList();
+			renderCrateDetail();
+		});
+	});
 }
 
 /* ---------- Filtres / tri / rendu du tableau ---------- */
@@ -387,6 +521,7 @@ function renderTable() {
 			tracks = tracks.filter(t => t.id !== id);
 			computeDuplicates();
 			refreshGenreFilterOptions();
+			refreshRecoSelect();
 			renderTable();
 		});
 	});
@@ -415,6 +550,7 @@ document.getElementById("clear-all-btn").addEventListener("click", () => {
 	tracks = [];
 	renderTable();
 	refreshGenreFilterOptions();
+	refreshRecoSelect();
 });
 
 document.getElementById("export-csv-btn").addEventListener("click", () => {
@@ -571,3 +707,4 @@ loadCratesFromStorage();
 renderCratesList();
 renderCrateDetail();
 renderTable();
+refreshRecoSelect();
