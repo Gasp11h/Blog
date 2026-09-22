@@ -1,0 +1,334 @@
+/* On reprend les couleurs du blog : violet et jaune */
+:root {
+	--violet: #5D33FF;
+	--violet-fonce: #3a1fb0;
+	--jaune: #FFE600;
+	--blanc: #ffffff;
+	--texte: #1b1440;
+	--vert: #1fbf6a;
+	--rouge: #ff4d6d;
+}
+
+* {
+	box-sizing: border-box; /* les bordures et le padding sont compris dans la largeur */
+}
+
+body {
+	margin: 0;
+	background-color: var(--violet);
+	color: var(--texte);
+	font-family: system-ui, sans-serif;
+	font-size: 17px;
+	line-height: 1.5;
+}
+
+header {
+	text-align: center;
+	color: var(--blanc);
+	padding: 24px 16px 8px;
+}
+
+h1 {
+	color: var(--jaune);
+	font-variant: small-caps;
+	letter-spacing: 1px;
+	margin: 8px 0 0;
+	font-size: 2.2em;
+}
+
+header p {
+	margin: 0;
+	opacity: 0.9;
+}
+
+.retour {
+	color: var(--jaune);
+	text-decoration: none;
+	font-size: 0.9em;
+}
+
+main {
+	max-width: 720px; /* le contenu ne devient pas trop large sur ordinateur */
+	margin: 0 auto;
+	padding: 16px;
+}
+
+/* ---------- Les cartes ---------- */
+
+.carte {
+	background-color: var(--blanc);
+	border: 3px solid var(--jaune);
+	border-radius: 17px;
+	box-shadow: 6px 6px 0 var(--jaune);
+	padding: 18px;
+	margin-bottom: 22px;
+}
+
+.carte h2 {
+	margin-top: 0;
+	color: var(--violet-fonce);
+	font-size: 1.3em;
+}
+
+.conseil p {
+	font-size: 1.1em;
+}
+
+.flemme ol {
+	padding-left: 22px;
+}
+
+/* ---------- Les statistiques ---------- */
+
+.stats {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+	margin-bottom: 22px;
+}
+
+.stat {
+	background-color: var(--violet-fonce);
+	color: var(--jaune);
+	border-radius: 14px;
+	padding: 12px 4px;
+	text-align: center;
+}
+
+.stat span {
+	display: block;
+	font-size: 1.6em;
+	font-weight: bold;
+}
+
+.stat small {
+	color: var(--blanc);
+	font-size: 0.75em;
+}
+
+/* ---------- La semaine ---------- */
+
+.semaine {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 6px;
+}
+
+.jour {
+	background-color: #f1edff;
+	border-radius: 10px;
+	padding: 8px 2px;
+	text-align: center;
+	font-size: 0.8em;
+	border: 2px solid transparent;
+}
+
+.jour span {
+	display: block;
+}
+
+.jour .emoji {
+	font-size: 1.5em;
+}
+
+.jour .etat {
+	min-height: 1.4em;
+}
+
+.jour.aujourdhui {
+	border-color: var(--violet);
+}
+
+.jour.fait {
+	background-color: #d7f7e6;
+}
+
+.jour.rate {
+	background-color: #ffe0e6;
+}
+
+/* ---------- La séance ---------- */
+
+.infos {
+	font-size: 1.05em;
+}
+
+.petit {
+	font-size: 0.9em;
+	color: #555;
+}
+
+.exercices {
+	list-style: none;
+	padding: 0;
+}
+
+.exercices li {
+	border-bottom: 1px solid #eee;
+	padding: 10px 0;
+}
+
+.exercices label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+}
+
+.exercices input {
+	width: 24px;
+	height: 24px;
+	accent-color: var(--vert);
+	flex-shrink: 0;
+}
+
+.exercices .nom {
+	flex: 1;
+	font-weight: bold;
+}
+
+.exercices .reps {
+	background-color: var(--jaune);
+	border-radius: 8px;
+	padding: 2px 10px;
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+.exercices input:checked ~ .nom {
+	text-decoration: line-through;
+	opacity: 0.5;
+}
+
+details {
+	margin-top: 6px;
+}
+
+summary {
+	cursor: pointer;
+	color: var(--violet);
+	font-size: 0.9em;
+}
+
+details p {
+	margin: 6px 0;
+	font-size: 0.9em;
+}
+
+.bravo {
+	background-color: #d7f7e6;
+	border-radius: 10px;
+	padding: 10px;
+	font-weight: bold;
+}
+
+/* ---------- Le tableau du programme ---------- */
+
+.tableau {
+	overflow-x: auto; /* sur petit écran, on peut faire défiler le tableau */
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+	margin: 10px 0;
+	font-size: 0.85em;
+}
+
+th, td {
+	border: 1px solid #ddd;
+	padding: 6px;
+	text-align: center;
+}
+
+td:first-child {
+	text-align: left;
+}
+
+th {
+	background-color: var(--violet);
+	color: var(--blanc);
+}
+
+/* ---------- Les boutons ---------- */
+
+button {
+	font: inherit;
+	cursor: pointer;
+	border-radius: 12px;
+	padding: 10px 18px;
+	margin: 6px 0;
+	border: none;
+}
+
+.btn-principal {
+	background-color: var(--violet);
+	color: var(--jaune);
+	font-weight: bold;
+	font-size: 1.05em;
+	width: 100%;
+}
+
+.btn-principal:hover {
+	background-color: var(--violet-fonce);
+}
+
+.btn-secondaire {
+	background-color: #f1edff;
+	color: var(--violet-fonce);
+}
+
+.btn-secondaire:hover {
+	background-color: var(--jaune);
+}
+
+.btn-lien {
+	background: none;
+	color: var(--blanc);
+	text-decoration: underline;
+	opacity: 0.7;
+}
+
+.reglages {
+	text-align: center;
+}
+
+/* ---------- Le minuteur ---------- */
+
+#minuteur {
+	position: fixed;
+	bottom: 16px;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: var(--texte);
+	color: var(--jaune);
+	border: 3px solid var(--jaune);
+	border-radius: 20px;
+	padding: 10px 20px;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	font-size: 1.6em;
+	font-weight: bold;
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+#minuteur[hidden] {
+	display: none;
+}
+
+#minuteur button {
+	font-size: 0.55em;
+}
+
+/* ---------- Sur téléphone ---------- */
+
+@media (max-width: 500px) {
+	.stats {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	h1 {
+		font-size: 1.8em;
+	}
+}

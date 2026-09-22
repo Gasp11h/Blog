@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"><!--Permet au site de bien s'afficher sur téléphone-->
+	<title>Ma routine sport</title>
+	<link href="sport.css" rel="stylesheet">
+</head>
+
+<body>
+
+<header>
+	<a class="retour" href="../index.html">← Retour au blog</a>
+	<h1>Ma routine sport</h1>
+	<p id="date-du-jour"></p>
+</header>
+
+<main>
+
+	<!--Les statistiques : semaine du programme, série, total-->
+	<section class="stats">
+		<div class="stat"><span id="stat-semaine">1/8</span><small>Semaine</small></div>
+		<div class="stat"><span id="stat-serie">0</span><small>Série 🔥</small></div>
+		<div class="stat"><span id="stat-semaine-faites">0/3</span><small>Cette semaine</small></div>
+		<div class="stat"><span id="stat-total">0</span><small>Jours actifs</small></div>
+	</section>
+
+	<!--Le conseil du jour-->
+	<section class="carte conseil">
+		<h2>💡 Conseil du jour</h2>
+		<p id="conseil-texte"></p>
+		<button id="btn-autre-conseil" class="btn-secondaire">Un autre conseil</button>
+	</section>
+
+	<!--La semaine en cours, jour par jour-->
+	<section class="carte">
+		<h2>📅 Ma semaine</h2>
+		<div id="semaine" class="semaine"></div>
+	</section>
+
+	<!--La séance du jour (remplie par le JavaScript)-->
+	<section class="carte" id="seance-du-jour"></section>
+
+	<!--Le bouton anti-flemme-->
+	<section class="carte flemme">
+		<h2>😴 J'ai la flemme...</h2>
+		<p>Normal, ça arrive à tout le monde. Clique ici, on va faire simple.</p>
+		<button id="btn-flemme" class="btn-principal">J'ai la flemme</button>
+		<div id="flemme-contenu" hidden>
+			<p><strong>La règle des 5 minutes :</strong> tu fais juste ces 5 minutes. Si après tu veux arrêter, tu as le droit. Mais en général, une fois lancé, on continue.</p>
+			<ol>
+				<li>1 min – Jumping jacks</li>
+				<li>1 min – Squats tranquilles</li>
+				<li>1 min – Pompes (sur les genoux si besoin)</li>
+				<li>1 min – Planche (fais des pauses si tu veux)</li>
+				<li>1 min – Étirements, respire</li>
+			</ol>
+			<button id="btn-minuteur-flemme" class="btn-secondaire">Lancer un minuteur de 5 min</button>
+			<button id="btn-mini-faite" class="btn-principal">C'est fait ! ✅</button>
+			<p id="flemme-message"></p>
+		</div>
+	</section>
+
+	<!--Le programme complet-->
+	<section class="carte">
+		<h2>📋 Le programme complet (8 semaines)</h2>
+		<p>3 séances par semaine, sans matériel, à faire chez toi. Chaque séance est un <strong>circuit</strong> : tu enchaînes tous les exercices = 1 tour, tu te reposes 1 min 30, puis tu recommences.</p>
+		<ul>
+			<li><strong>Semaines 1-2 :</strong> on découvre, 2 tours</li>
+			<li><strong>Semaines 3-4 :</strong> on s'habitue, 3 tours</li>
+			<li><strong>Semaines 5-6 :</strong> on monte les répétitions, 3 tours</li>
+			<li><strong>Semaines 7-8 :</strong> on se dépasse, 4 tours</li>
+		</ul>
+		<div id="programme-complet"></div>
+	</section>
+
+	<section class="reglages">
+		<button id="btn-reset" class="btn-lien">Recommencer le programme à zéro</button>
+	</section>
+
+</main>
+
+<!--Le minuteur qui s'affiche en bas de l'écran-->
+<div id="minuteur" hidden>
+	<span id="minuteur-temps">0:00</span>
+	<button id="minuteur-stop" class="btn-secondaire">Arrêter</button>
+</div>
+
+<script src="programme.js"></script>
+<script src="conseils.js"></script>
+<script src="sport.js"></script>
+</body>
+</html>
