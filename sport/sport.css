@@ -78,6 +78,41 @@ main {
 	padding-left: 22px;
 }
 
+/* ---------- L'objectif ---------- */
+
+.jauge {
+	background-color: #f1edff;
+	border-radius: 10px;
+	height: 18px;
+	overflow: hidden;
+}
+
+.jauge-barre {
+	background-color: var(--vert);
+	height: 100%;
+	width: 0%;
+	transition: width 0.6s;
+}
+
+.poids {
+	display: flex;
+	gap: 8px;
+}
+
+.poids input {
+	flex: 1;
+	min-width: 0;
+	font: inherit;
+	padding: 8px 12px;
+	border: 2px solid #ddd;
+	border-radius: 12px;
+}
+
+.carte h3 {
+	color: var(--violet-fonce);
+	margin-bottom: 0;
+}
+
 /* ---------- Les statistiques ---------- */
 
 .stats {

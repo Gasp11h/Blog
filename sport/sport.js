@@ -181,8 +181,27 @@ function afficherSeanceDuJour() {
 
 		html +=
 			"</ul>" +
-			"<p class='petit'>Entre chaque tour : 1 min 30 de repos.</p>" +
-			"<button class='btn-secondaire' data-minuteur='90'>Repos 1 min 30</button> " +
+			"<p class='petit'>Entre chaque tour : 1 min de repos (pas plus : le cœur reste haut et tu brûles plus).</p>" +
+			"<button class='btn-secondaire' data-minuteur='60'>Repos 1 min</button> " +
+			"<h3>🎯 Finisher abdos · " + TOURS_ABDOS[phase] + (TOURS_ABDOS[phase] > 1 ? " tours" : " tour") + "</h3>" +
+			"<ul class='exercices'>";
+
+		FINISHER_ABDOS.forEach(function (exo, i) {
+			const index = seance.exercices.length + i; // numéro de case à la suite des autres
+			const coche = coches.includes(index) ? "checked" : "";
+			html +=
+				"<li>" +
+				"<label><input type='checkbox' data-index='" + index + "' " + coche + ">" +
+				"<span class='nom'>" + exo.nom + "</span>" +
+				"<span class='reps'>" + exo.reps[phase] + "</span></label>" +
+				"<details><summary>Comment faire ?</summary>" +
+				"<p>👉 " + exo.astuce + "</p>" +
+				"<p>🙂 Trop dur ? " + exo.facile + "</p></details>" +
+				"</li>";
+		});
+
+		html +=
+			"</ul>" +
 			"<p class='petit'>" + ETIREMENTS + "</p>" +
 			(dejaFaite
 				? "<p class='bravo'>✅ Séance validée ! Tu peux être fier de toi.</p>"
@@ -204,7 +223,7 @@ function afficherSeanceDuJour() {
 		});
 
 		section.querySelector("[data-minuteur]").addEventListener("click", function () {
-			lancerMinuteur(90);
+			lancerMinuteur(60);
 		});
 	}
 
@@ -236,6 +255,55 @@ function messageBravo() {
 	return messages[Math.floor(Math.random() * messages.length)];
 }
 
+// ---------- Mon objectif : le poids ----------
+
+const OBJECTIF_KG = 5;
+
+// Affiche un nombre à la française : 73.6 → "73,6"
+function kg(nombre) {
+	return nombre.toFixed(1).replace(".", ",");
+}
+
+function afficherObjectif() {
+	const poids = donnees.poids || {};
+	const dates = Object.keys(poids).sort();
+	const texte = document.getElementById("objectif-texte");
+	const barre = document.getElementById("objectif-barre");
+
+	if (dates.length === 0) {
+		texte.textContent = "Pèse-toi (le matin, à jeun, après être allé aux toilettes) et note ton poids pour commencer.";
+		barre.style.width = "0%";
+		return;
+	}
+
+	const depart = poids[dates[0]];
+	const actuel = poids[dates[dates.length - 1]];
+	const cible = depart - OBJECTIF_KG;
+	const perdu = Math.max(0, depart - actuel);
+	const pourcentage = Math.min(100, (perdu / OBJECTIF_KG) * 100);
+
+	barre.style.width = pourcentage + "%";
+	texte.innerHTML =
+		"Départ : <strong>" + kg(depart) + " kg</strong> · Actuel : <strong>" + kg(actuel) + " kg</strong> · Objectif : <strong>" + kg(cible) + " kg</strong><br>" +
+		(actuel <= cible
+			? "🏆 Objectif atteint ! Énorme bravo !"
+			: "Déjà <strong>" + kg(perdu) + " kg</strong> de perdus, plus que " + kg(actuel - cible) + " kg !");
+}
+
+document.getElementById("btn-poids").addEventListener("click", function () {
+	const champ = document.getElementById("champ-poids");
+	const valeur = parseFloat(champ.value.replace(",", "."));
+	if (!valeur || valeur < 30 || valeur > 250) {
+		champ.focus();
+		return;
+	}
+	donnees.poids = donnees.poids || {};
+	donnees.poids[aujourdhuiTexte] = valeur;
+	sauvegarder();
+	champ.value = "";
+	afficherObjectif();
+});
+
 // ---------- Le conseil du jour ----------
 
 let indexConseil = Math.floor(texteVersDate(aujourdhuiTexte).getTime() / MS_PAR_JOUR) % CONSEILS.length;
@@ -264,6 +332,13 @@ function afficherProgrammeComplet() {
 		});
 		html += "<tr><td><em>Tours</em></td><td>" + TOURS.join("</td><td>") + "</td></tr></table></div></details>";
 	});
+	html +=
+		"<details><summary>🎯 Finisher abdos (à la fin de chaque séance)</summary>" +
+		"<div class='tableau'><table><tr><th>Exercice</th><th>S1-2</th><th>S3-4</th><th>S5-6</th><th>S7-8</th></tr>";
+	FINISHER_ABDOS.forEach(function (exo) {
+		html += "<tr><td>" + exo.nom + "</td><td>" + exo.reps.join("</td><td>") + "</td></tr>";
+	});
+	html += "<tr><td><em>Tours</em></td><td>" + TOURS_ABDOS.join("</td><td>") + "</td></tr></table></div></details>";
 	document.getElementById("programme-complet").innerHTML = html;
 }
 
@@ -352,5 +427,6 @@ function toutAfficher() {
 }
 
 toutAfficher();
+afficherObjectif();
 afficherConseil();
 afficherProgrammeComplet();

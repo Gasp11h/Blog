@@ -49,5 +49,22 @@ const CONSEILS = [
 	"Les jours où c'est dur sont ceux qui comptent le plus. N'importe qui s'entraîne quand il est motivé.",
 	"Garde une bouteille d'eau à côté de toi pendant la séance.",
 	"Tu as le droit de mettre de la musique à fond et de danser entre deux exercices.",
-	"Dans 8 semaines, tu seras content d'avoir commencé aujourd'hui."
+	"Dans 8 semaines, tu seras content d'avoir commencé aujourd'hui.",
+	"Pour perdre du gras, l'assiette compte plus que le sport. On ne rattrape pas une mauvaise alimentation avec des abdos.",
+	"Les abdos se construisent pendant tes séances, mais ils se montrent dans la cuisine.",
+	"L'assiette idéale : la moitié de légumes, un quart de protéines (viande, poisson, œufs, lentilles), un quart de féculents (riz, pâtes, pain complet).",
+	"Les protéines calent longtemps et protègent tes muscles pendant que tu perds du gras. Mets-en à chaque repas.",
+	"Les boissons sucrées (sodas, jus, thés glacés) sont des calories qu'on ne sent pas passer. Remplace-les par de l'eau, ou de l'eau pétillante.",
+	"Mange lentement et pose ta fourchette entre les bouchées. Le cerveau met 20 minutes à comprendre que tu n'as plus faim.",
+	"Tu n'as pas besoin de supprimer ce que tu aimes. Garde tes plaisirs, mais en plus petite quantité et moins souvent.",
+	"Le grignotage devant un écran, c'est le piège n°1. Si tu as faim, mange un fruit, un yaourt ou une poignée d'amandes.",
+	"Ne saute pas de repas : tu risques de craquer et de manger beaucoup plus plus tard.",
+	"Vise 8 000 à 10 000 pas par jour. La marche brûle beaucoup plus de calories qu'on croit, et sans fatiguer.",
+	"Tu as pris 5 kg en quelques semaines d'été, tu peux les perdre en 2-3 mois. Pas besoin de régime extrême.",
+	"Le manque de sommeil donne faim, surtout envie de sucre. Dormir, c'est aussi une arme pour perdre du poids.",
+	"Pèse-toi une seule fois par semaine. Le poids bouge chaque jour à cause de l'eau, ça peut démoraliser pour rien.",
+	"La balance ne dit pas tout : si ton ventre dégonfle et que tes vêtements tombent mieux, tu es sur la bonne voie.",
+	"Les frites, les chips et la friture sont très caloriques. Préfère le four ou la poêle avec un filet d'huile.",
+	"Au fast-food ? Prends le menu normal, pas le maxi, et de l'eau au lieu du soda. C'est déjà une grosse différence.",
+	"Garde un ventre plat au quotidien : tiens-toi droit et rentre légèrement le nombril. Ça renforce aussi les abdos profonds."
 ];

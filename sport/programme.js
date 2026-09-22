@@ -11,7 +11,7 @@ const SEANCES = {
 	A: {
 		nom: "Haut du corps",
 		emoji: "💪",
-		duree: "25 à 35 min",
+		duree: "30 à 40 min",
 		exercices: [
 			{ nom: "Pompes", reps: ["6", "8", "10", "12"], facile: "Sur les genoux, ou mains posées sur une table", astuce: "Corps bien droit comme une planche, coudes à 45° du corps" },
 			{ nom: "Dips sur une chaise", reps: ["6", "8", "10", "12"], facile: "Garde les jambes pliées, pieds proches", astuce: "Descends jusqu'à ce que les coudes fassent un angle droit" },
@@ -23,7 +23,7 @@ const SEANCES = {
 	B: {
 		nom: "Jambes & cardio",
 		emoji: "🦵",
-		duree: "25 à 35 min",
+		duree: "30 à 40 min",
 		exercices: [
 			{ nom: "Squats", reps: ["12", "15", "20", "25"], facile: "Descends moins bas, ou assieds-toi sur une chaise et relève-toi", astuce: "Talons au sol, poitrine fière, genoux dans l'axe des pieds" },
 			{ nom: "Fentes alternées", reps: ["6 / jambe", "8 / jambe", "10 / jambe", "12 / jambe"], facile: "Tiens-toi à un mur", astuce: "Le genou arrière descend presque jusqu'au sol" },
@@ -36,7 +36,7 @@ const SEANCES = {
 	C: {
 		nom: "Gainage & full body",
 		emoji: "🔥",
-		duree: "25 à 35 min",
+		duree: "30 à 40 min",
 		exercices: [
 			{ nom: "Burpees", reps: ["5", "6", "8", "10"], facile: "Sans la pompe et sans le saut", astuce: "Accroupi → planche → pompe → accroupi → saut" },
 			{ nom: "Planche latérale", reps: ["15 s / côté", "20 s / côté", "30 s / côté", "40 s / côté"], facile: "Genou du bas posé au sol", astuce: "Le corps forme une ligne droite, hanches hautes" },
@@ -48,15 +48,24 @@ const SEANCES = {
 	}
 };
 
+// Le "finisher abdos" : à faire à la fin de CHAQUE séance, juste avant les étirements
+const TOURS_ABDOS = [1, 1, 2, 2];
+const FINISHER_ABDOS = [
+	{ nom: "Crunchs", reps: ["15", "20", "20", "25"], facile: "Mains sur les cuisses, monte juste un peu", astuce: "Décolle les épaules en soufflant, le bas du dos reste au sol" },
+	{ nom: "Relevés de jambes", reps: ["8", "10", "12", "15"], facile: "Genoux pliés", astuce: "Allongé, mains sous les fesses, monte les jambes sans creuser le dos" },
+	{ nom: "Russian twist", reps: ["10 / côté", "12 / côté", "15 / côté", "20 / côté"], facile: "Pieds posés au sol", astuce: "Assis, buste penché en arrière, tourne les épaules de gauche à droite" },
+	{ nom: "Planche", reps: ["30 s", "40 s", "45 s", "60 s"], facile: "Sur les genoux", astuce: "Rentre le nombril comme si tu voulais le coller à ta colonne" }
+];
+
 // Ce qu'on fait chaque jour de la semaine (0 = dimanche, 1 = lundi, ... 6 = samedi)
 const PLANNING = {
 	1: { type: "seance", seance: "A" },
-	2: { type: "repos", titre: "Repos actif", emoji: "🚶", texte: "Pas de séance aujourd'hui ! Essaie juste de marcher 20-30 minutes (aller à pied quelque part, prendre les escaliers...)." },
+	2: { type: "repos", titre: "Cardio doux", emoji: "🚶", texte: "Pas de séance, mais on brûle des calories : 30 à 45 minutes de marche rapide (ou vélo). Tu dois être un peu essoufflé mais pouvoir parler. C'est l'arme n°1 pour perdre du gras sans te fatiguer." },
 	3: { type: "seance", seance: "B" },
-	4: { type: "repos", titre: "Mobilité", emoji: "🧘", texte: "10 minutes d'étirements : cou, épaules, poignets, hanches, ischios. Tes muscles récupèrent et tu seras plus souple pour le break." },
+	4: { type: "repos", titre: "Marche + mobilité", emoji: "🧘", texte: "30 minutes de marche rapide, puis 10 minutes d'étirements (cou, épaules, poignets, hanches, ischios). Tes muscles récupèrent et tu seras plus souple pour le break." },
 	5: { type: "seance", seance: "C" },
-	6: { type: "repos", titre: "Activité libre", emoji: "🕺", texte: "Fais un sport qui te fait plaisir : break dance, vélo, foot, piscine... C'est bonus, mais ça compte !" },
-	0: { type: "repos", titre: "Repos complet", emoji: "😌", texte: "Repos total. Dors bien, mange bien, prépare ta semaine. C'est pendant le repos que les muscles se construisent." }
+	6: { type: "repos", titre: "Activité libre", emoji: "🕺", texte: "Au moins 45 minutes d'un sport qui te fait plaisir : break dance, vélo, foot, piscine... Plus tu bouges, plus tu brûles de calories !" },
+	0: { type: "repos", titre: "Repos complet", emoji: "😌", texte: "Repos. Dors bien, mange bien, prépare ta semaine. Une balade tranquille est un bonus. Et attention aux repas du week-end : c'est souvent là qu'on reprend les kilos !" }
 };
 
 // L'échauffement et le retour au calme, identiques à chaque séance
