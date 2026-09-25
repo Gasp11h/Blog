@@ -273,6 +273,8 @@ dropZone.addEventListener("drop", e => {
 dropZone.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", () => handleFiles(fileInput.files));
 
+const TAG_READ_CONCURRENCY = 8;
+
 async function handleFiles(fileList) {
 	const files = Array.from(fileList).filter(f => SUPPORTED_AUDIO_EXTENSIONS.has(fileExtension(f.name)));
 	if (files.length === 0) return;
@@ -281,16 +283,21 @@ async function handleFiles(fileList) {
 	let done = 0;
 	progressEl.textContent = `Analyse des fichiers : 0 / ${files.length}`;
 
-	for (const file of files) {
-		const tags = await readTags(file);
-		tracks.push({
-			id: nextTrackId++,
-			file,
-			filename: file.name,
-			size: file.size,
-			...tags
-		});
-		done++;
+	// Lecture des tags par lots en parallèle (plus rapide qu'un fichier à la fois,
+	// sans pour autant ouvrir des centaines de lectures de fichiers d'un coup).
+	for (let i = 0; i < files.length; i += TAG_READ_CONCURRENCY) {
+		const batch = files.slice(i, i + TAG_READ_CONCURRENCY);
+		const batchResults = await Promise.all(batch.map(async file => ({ file, tags: await readTags(file) })));
+		for (const { file, tags } of batchResults) {
+			tracks.push({
+				id: nextTrackId++,
+				file,
+				filename: file.name,
+				size: file.size,
+				...tags
+			});
+		}
+		done += batch.length;
 		progressEl.textContent = `Analyse des fichiers : ${done} / ${files.length}`;
 	}
 
@@ -299,7 +306,36 @@ async function handleFiles(fileList) {
 	computeDuplicates();
 	refreshGenreFilterOptions();
 	refreshRecoSelect();
+	saveTracksToStorage();
 	renderTable();
+}
+
+/* ---------- Persistance de la bibliothèque (métadonnées uniquement) ---------- */
+/* On ne réenregistre pas le contenu audio (trop lourd, et inutile ici) : seules les
+   métadonnées déjà extraites sont mémorisées, pour éviter de tout redéposer à chaque
+   visite. Le champ "file" est donc absent après un rechargement de page. */
+
+function trackStorageEntry(t) {
+	return { id: t.id, filename: t.filename, size: t.size, title: t.title, artist: t.artist, album: t.album, genre: t.genre, year: t.year, bpm: t.bpm, key: t.key, tagsRead: t.tagsRead };
+}
+
+function saveTracksToStorage() {
+	try {
+		localStorage.setItem("serato-sorter-tracks", JSON.stringify(tracks.map(trackStorageEntry)));
+	} catch (e) {
+		// Quota localStorage dépassé (bibliothèque très volumineuse) : on continue sans persister.
+	}
+}
+
+function loadTracksFromStorage() {
+	try {
+		const raw = localStorage.getItem("serato-sorter-tracks");
+		const saved = raw ? JSON.parse(raw) : [];
+		tracks = saved.map(t => ({ ...t, file: null }));
+		nextTrackId = tracks.reduce((max, t) => Math.max(max, t.id), 0) + 1;
+	} catch (e) {
+		tracks = [];
+	}
 }
 
 /* ---------- Doublons ---------- */
@@ -522,6 +558,7 @@ function renderTable() {
 			computeDuplicates();
 			refreshGenreFilterOptions();
 			refreshRecoSelect();
+			saveTracksToStorage();
 			renderTable();
 		});
 	});
@@ -551,6 +588,7 @@ document.getElementById("clear-all-btn").addEventListener("click", () => {
 	renderTable();
 	refreshGenreFilterOptions();
 	refreshRecoSelect();
+	saveTracksToStorage();
 });
 
 document.getElementById("export-csv-btn").addEventListener("click", () => {
@@ -633,17 +671,24 @@ function renderCrateDetail() {
 		<h3>${escapeHtml(activeCrate)} <span class="crate-count">${items.length} morceau(x)</span></h3>
 		<div class="crate-actions">
 			<button id="export-m3u-btn">Exporter en playlist (.m3u8)</button>
+			<button id="sort-crate-btn" ${items.length < 3 ? "disabled" : ""} title="${items.length < 3 ? "Il faut au moins 3 morceaux" : "Réordonne le crate pour un enchaînement plus fluide"}">Trier pour enchaîner</button>
 		</div>
 		<ul class="crate-track-list">
 			${items.map((t, i) => `
 				<li>
-					<span>${escapeHtml(t.title)} — ${escapeHtml(t.artist || "Artiste inconnu")}</span>
+					<span class="crate-track-order">${i + 1}</span>
+					<span class="crate-track-info">
+						<span class="crate-track-title">${escapeHtml(t.title)} — ${escapeHtml(t.artist || "Artiste inconnu")}</span>
+						<span class="crate-track-meta muted">${t.bpm ? `${escapeHtml(t.bpm)} BPM` : "BPM ?"} · ${t.key ? escapeHtml(t.key) : "Clé ?"}</span>
+					</span>
 					<button class="remove-from-crate-btn" data-index="${i}" title="Retirer du crate">✕</button>
 				</li>
 			`).join("")}
 		</ul>
 	`;
 	document.getElementById("export-m3u-btn").addEventListener("click", () => exportCrateAsM3U(activeCrate));
+	const sortBtn = document.getElementById("sort-crate-btn");
+	if (!sortBtn.disabled) sortBtn.addEventListener("click", () => sortCrateForMixing(activeCrate));
 	document.querySelectorAll(".remove-from-crate-btn").forEach(btn => {
 		btn.addEventListener("click", () => {
 			const idx = parseInt(btn.dataset.index, 10);
@@ -653,6 +698,31 @@ function renderCrateDetail() {
 			renderCrateDetail();
 		});
 	});
+}
+
+function sortCrateForMixing(name) {
+	const items = crates[name];
+	if (!items || items.length < 3) return;
+
+	// Heuristique gloutonne : à chaque étape, on choisit parmi les morceaux restants
+	// celui qui s'enchaîne le mieux (clé + BPM) avec le dernier morceau placé.
+	const remaining = items.slice();
+	const ordered = [remaining.shift()];
+	while (remaining.length) {
+		const last = ordered[ordered.length - 1];
+		let bestIdx = 0, bestScore = -1;
+		remaining.forEach((t, idx) => {
+			const keyMatch = keyCompatibility(last.key, t.key);
+			const bpmMatch = bpmCompatibility(last.bpm, t.bpm);
+			const score = (keyMatch ? keyMatch.score : 0) + (bpmMatch ? bpmMatch.score : 0);
+			if (score > bestScore) { bestScore = score; bestIdx = idx; }
+		});
+		ordered.push(remaining.splice(bestIdx, 1)[0]);
+	}
+
+	crates[name] = ordered;
+	saveCratesToStorage();
+	renderCrateDetail();
 }
 
 function exportCrateAsM3U(name) {
@@ -706,5 +776,9 @@ addToCrateBtn.addEventListener("click", () => {
 loadCratesFromStorage();
 renderCratesList();
 renderCrateDetail();
+
+loadTracksFromStorage();
+computeDuplicates();
+refreshGenreFilterOptions();
 renderTable();
 refreshRecoSelect();
