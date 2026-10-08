@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Trieur de musique pour Serato DJ Pro</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+	<link href="serato-sorter.css" rel="stylesheet">
+</head>
+<body>
+
+<header class="page-header">
+	<a class="back-link" href="index.html">&larr; Retour au blog</a>
+	<h1>🎧 Trieur de musique pour Serato DJ Pro</h1>
+	<p class="privacy-note">
+		Tout se passe dans votre navigateur : vos fichiers audio ne sont jamais envoyés sur un serveur.
+		Déposez vos morceaux ci-dessous pour lire leurs tags (titre, artiste, genre, année, BPM, clé),
+		repérer les doublons et organiser des crates que vous pourrez exporter en playlist.
+	</p>
+</header>
+
+<main class="layout">
+	<section class="main-column">
+
+		<div id="drop-zone" class="drop-zone" tabindex="0">
+			<p><strong>Glissez-déposez vos fichiers audio ici</strong></p>
+			<p class="muted">ou cliquez pour parcourir vos fichiers (MP3 conseillé pour la lecture des tags)</p>
+			<input type="file" id="file-input" multiple accept="audio/*,.mp3,.wav,.aiff,.aif,.m4a,.flac,.ogg" hidden>
+		</div>
+		<p id="load-progress" class="load-progress" hidden></p>
+
+		<div class="controls">
+			<input type="text" id="search-input" placeholder="Rechercher (titre, artiste, album)...">
+			<select id="genre-filter"><option value="">Tous les genres</option></select>
+			<label class="bpm-filter">BPM
+				<input type="number" id="bpm-min" placeholder="min" min="0">
+				&ndash;
+				<input type="number" id="bpm-max" placeholder="max" min="0">
+			</label>
+			<label class="dup-filter">
+				<input type="checkbox" id="dup-only"> Doublons uniquement
+			</label>
+			<button id="export-csv-btn" type="button">Exporter en CSV</button>
+			<button id="clear-all-btn" type="button" class="danger">Vider la liste</button>
+		</div>
+
+		<p id="track-count" class="track-count">0 morceau(x)</p>
+		<p class="muted persistence-note">Votre liste est mémorisée dans ce navigateur (métadonnées uniquement) — inutile de tout redéposer à chaque visite.</p>
+
+		<div class="table-wrap">
+			<table>
+				<thead>
+					<tr>
+						<th></th>
+						<th data-sort="title">Titre</th>
+						<th data-sort="artist">Artiste</th>
+						<th data-sort="album">Album</th>
+						<th data-sort="genre">Genre</th>
+						<th data-sort="year">Année</th>
+						<th data-sort="bpm">BPM</th>
+						<th data-sort="key">Clé</th>
+						<th data-sort="filename">Fichier</th>
+						<th data-sort="size">Taille</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody id="track-tbody"></tbody>
+			</table>
+			<p id="empty-state" class="empty-state">Aucun morceau chargé pour l'instant. Déposez des fichiers ci-dessus.</p>
+		</div>
+
+		<section class="reco-section">
+			<h2>🔁 Recommandations pour enchaîner</h2>
+			<p class="muted">Basées sur la compatibilité harmonique (roue de Camelot) et le BPM entre les morceaux déjà chargés.</p>
+			<div class="reco-controls">
+				<label for="reco-select">Morceau en cours :</label>
+				<select id="reco-select"><option value="">— choisir un morceau —</option></select>
+			</div>
+			<div id="reco-results" class="reco-results">
+				<p class="muted">Choisissez un morceau pour voir les meilleures suggestions pour enchaîner.</p>
+			</div>
+		</section>
+	</section>
+
+	<aside class="crates-panel">
+		<h2>Crates</h2>
+		<form id="new-crate-form" class="new-crate-form">
+			<input type="text" id="new-crate-name" placeholder="Nom du nouveau crate" required>
+			<button type="submit">Créer</button>
+		</form>
+
+		<ul id="crates-list" class="crates-list"></ul>
+
+		<div class="active-crate-picker">
+			<label for="active-crate-select">Crate actif :</label>
+			<select id="active-crate-select"><option value="">— choisir un crate —</option></select>
+		</div>
+		<button id="add-to-crate-btn" type="button" class="add-to-crate-btn">Ajouter la sélection au crate actif</button>
+
+		<div id="crate-detail" class="crate-detail">
+			<p class="muted">Sélectionnez ou créez un crate pour voir son contenu.</p>
+		</div>
+
+		<p class="crate-help">
+			Les crates sont sauvegardés automatiquement dans ce navigateur (localStorage).
+			Pour les utiliser dans Serato DJ Pro : exportez un crate en playlist <code>.m3u8</code>,
+			puis importez-la depuis le panneau <em>Files</em> de Serato (ou glissez le fichier
+			<code>.m3u8</code> dans un crate). Astuce : gardez tous vos morceaux dans un seul
+			dossier pour que les chemins de fichiers restent valides.
+		</p>
+	</aside>
+</main>
+
+<footer class="page-footer">
+	<p class="muted">Limitations actuelles : la lecture des tags (titre/artiste/genre/année/BPM/clé) ne fonctionne que sur les fichiers MP3 (tags ID3). Les autres formats (WAV, AIFF, M4A, FLAC, OGG) peuvent être ajoutés à la liste mais affichent seulement leur nom de fichier.</p>
+</footer>
+
+<script src="serato-sorter.js" defer></script>
+</body>
+</html>
